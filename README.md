@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <img src="images/dashboard.png" alt="tvscrn Dashboard" width="800">
+  <img src="images/list.png" alt="tvscrn Dashboard" width="800">
 </p>
 
 ---
@@ -68,7 +68,7 @@ Open `http://localhost:5000` and follow the setup wizard.
 ## Features
 
 <p align="center">
-  <img src="images/list.png" alt="Device List" width="800">
+  <img src="images/users.png" alt="User List" width="800">
 </p>
 
 | Feature | Description |
