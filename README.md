@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <img src="images/dashboard.jpg" alt="tvscrn Dashboard" width="800">
+  <img src="images/dashboard.png" alt="tvscrn Dashboard" width="800">
 </p>
 
 ---
@@ -68,7 +68,7 @@ Open `http://localhost:5000` and follow the setup wizard.
 ## Features
 
 <p align="center">
-  <img src="images/list.jpg" alt="Device List" width="800">
+  <img src="images/list.png" alt="Device List" width="800">
 </p>
 
 | Feature | Description |
@@ -113,7 +113,7 @@ adb devices  # Should show "connected"
 Click the green **Connect** button on the device row. The VNC modal opens with live video and remote control toolbar.
 
 <p align="center">
-  <img src="images/settings.jpg" alt="Settings" width="800">
+  <img src="images/settings.png" alt="Settings" width="800">
 </p>
 
 ### Toolbar
@@ -321,7 +321,7 @@ Keep the footer attribution: `Powered by <a href="https://github.com/tvscrn/tvsc
 ## Audit Logging
 
 <p align="center">
-  <img src="images/log.jpg" alt="Audit Log" width="800">
+  <img src="images/log.png" alt="Audit Log" width="800">
 </p>
 
 Every action is logged in the audit trail:
