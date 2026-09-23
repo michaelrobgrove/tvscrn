@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Control - {{ device_name or 'Device' }}</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #0a0a0a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; user-select: none; -webkit-user-select: none; touch-action: none; }
+        #main { position: fixed; inset: 0; display: flex; flex-direction: column; background: #000; }
+        #vnc-wrap { flex: 1; min-height: 0; position: relative; background: #000; }
+        #vnc-frame { width: 100%; height: 100%; border: none; display: block; background: #000; }
+        #toolbar { display: flex; gap: 4px; padding: 8px; background: #1a1a1a; border-top: 1px solid #2a2a2a; flex-wrap: wrap; }
+        #toolbar button { background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; border-radius: 4px; padding: 10px 14px; font-size: 14px; min-width: 56px; min-height: 40px; cursor: pointer; flex: 1; }
+        #toolbar button:active { background: #c41e3a; transform: scale(0.97); }
+        #toolbar button.danger { background: #7f1d1d; border-color: #7f1d1d; }
+        #status { position: absolute; top: 8px; right: 8px; color: #fff; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-family: monospace; z-index: 10; }
+        #status.live { color: #4ade80; }
+        #status.error { color: #f87171; }
+        #device-info { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-family: monospace; z-index: 10; opacity: 0.85; }
+        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(196, 30, 58, 0.95); color: #fff; padding: 16px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; pointer-events: none; z-index: 1000; opacity: 0; transition: opacity 0.2s; }
+        #toast.show { opacity: 1; }
+        .cred-btn { background: #1e3a5f !important; border-color: #2563eb !important; font-weight: 600; }
+        .cred-btn:active { background: #2563eb !important; }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="vnc-wrap">
+        <div id="status" class="loading">Connecting...</div>
+        <div id="device-info">{{ device_name or 'Device' }}</div>
+        <iframe id="vnc-frame" src="/vnc/vnc.html?autoconnect=true&resize=scale&path=websockify&host=100.67.146.57&port=6080"></iframe>
+    </div>
+    <div id="toolbar">
+        <button onclick="sendKey(3)" title="Home">⌂ Home</button>
+        <button onclick="sendKey(4)" title="Back">← Back</button>
+        <button onclick="sendKey(187)" title="Recents">▢ Apps</button>
+        <button onclick="sendKey(24)" title="Volume Up">V+</button>
+        <button onclick="sendKey(25)" title="Volume Down">V-</button>
+        <button onclick="sendKey(26)" title="Power">⏻ Pwr</button>
+        <button onclick="typeUsername()" class="cred-btn" title="Type IPTV Username">👤 User</button>
+        <button onclick="typePassword()" class="cred-btn" title="Type IPTV Password">🔑 Pass</button>
+        <button onclick="disconnect()" class="danger" title="Disconnect">✕ Disconnect</button>
+    </div>
+</div>
+<div id="toast"></div>
+<script>
+const DEVICE_ID = {{ device_id|tojson if device_id else 'null' }};
+const DEVICE_NAME = {{ (device_name or '')|tojson }};
+let deviceCredentials = { username: '', password: '' };
+
+(async function() {
+    const status = document.getElementById('status');
+    const toast = document.getElementById('toast');
+
+    function setStatus(text, cls) {
+        status.textContent = text;
+        status.className = cls || '';
+    }
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 800);
+    }
+
+    document.getElementById('vnc-frame').addEventListener('load', () => {
+        setStatus('● LIVE', 'live');
+    });
+
+    // Fetch device credentials on load
+    if (DEVICE_ID) {
+        try {
+            const r = await fetch(`/api/devices/${DEVICE_ID}/credentials`, { credentials: 'same-origin' });
+            const d = await r.json();
+            if (d.success) {
+                deviceCredentials = { username: d.username, password: d.password };
+            }
+        } catch (e) { console.log('Could not load credentials'); }
+    }
+
+    window.sendKey = async function(keycode) {
+        if (!DEVICE_ID) { showToast('No device ID'); return; }
+        try {
+            const r = await fetch(`/api/devices/${DEVICE_ID}/input/key`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin', body: JSON.stringify({ keycode })
+            });
+            if (r.ok) showToast('✓ ' + keycode); else showToast('✗ ' + r.status);
+        } catch (e) { showToast('Error'); }
+    };
+
+    window.typeText = async function(text) {
+        if (!DEVICE_ID || !text) return;
+        try {
+            const r = await fetch(`/api/devices/${DEVICE_ID}/input/text`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin', body: JSON.stringify({ text })
+            });
+            if (r.ok) showToast('✓ Typed'); else showToast('✗ Failed');
+        } catch (e) { showToast('Error'); }
+    };
+
+    window.typeUsername = function() {
+        if (deviceCredentials.username) { typeText(deviceCredentials.username); showToast('Typing username...'); }
+        else showToast('No username set');
+    };
+
+    window.typePassword = function() {
+        if (deviceCredentials.password) { typeText(deviceCredentials.password); showToast('Typing password...'); }
+        else showToast('No password set');
+    };
+
+    window.disconnect = async function() {
+        if (DEVICE_ID) {
+            try { await fetch(`/api/devices/${DEVICE_ID}/disconnect`, { method: 'POST', credentials: 'same-origin' }); } catch (e) {}
+        }
+        window.location.href = '/dashboard?action=list';
+    };
+
+    if (!DEVICE_ID) { setStatus('No device ID', 'error'); }
+    else { console.log('Device:', DEVICE_NAME, 'ID:', DEVICE_ID); }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+// Register this device with Socket.IO for device-specific disconnect cleanup
+if (DEVICE_ID) {
+    const dcSocket = io();
+    dcSocket.on('connect', function() {
+        dcSocket.emit('register_device', { device_id: DEVICE_ID });
+    });
+}
+</script>
+</body>
+</html>

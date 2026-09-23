@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    container_name: tvscrn
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_URL=${DB_URL:-}
+      - SECRET_KEY=${SECRET_KEY:-}
+      - DB_PATH=/app/data/devices.db
+    network_mode: host
+    # Host network needed for:
+    # - ADB connections to local network devices
+    # - Xvfb display server
+    # - mediamtx WebRTC/RTSP ports

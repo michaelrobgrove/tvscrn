@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - tvscrn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #9b1830;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --border: #333;
+            --text: #e5e5e5;
+            --text-muted: #999;
+        }
+        
+        body { 
+            background-color: #121212; 
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .navbar { 
+            background: var(--surface) !important;
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+        }
+        
+        .navbar-brand i {
+            color: var(--primary);
+        }
+        
+        .card { 
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        
+        .card-header {
+            background: #111 !important;
+            border-bottom: 1px solid var(--border) !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .form-control, .form-select { 
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+        }
+        
+        .form-control:focus, .form-select:focus { 
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.15);
+        }
+        
+        .form-check-input {
+            background: var(--surface);
+            border-color: var(--border);
+            cursor: pointer;
+        }
+        
+        .form-check-input:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .form-check-input:focus {
+            box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.15);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-danger {
+            font-weight: 600;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-warning {
+            font-weight: 600;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(241, 196, 15, 0.4);
+        }
+        
+        .alert {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            color: var(--red-primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--grey-light);
+        }
+        
+        .info-text {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        
+        .password-strength {
+            height: 5px;
+            background-color: var(--grey-light);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            width: 0%;
+        }
+        
+        .strength-weak { background-color: #e74c3c; width: 33%; }
+        .strength-medium { background-color: #f39c12; width: 66%; }
+        .strength-strong { background-color: #27ae60; width: 100%; }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--red-primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--red-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-tv me-2"></i>TVSCRN
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/settings">
+                        <i class="fas fa-cog me-1"></i>Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users">
+                        <i class="fas fa-users me-1"></i>Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/audit-log">
+                        <i class="fas fa-clipboard-list me-1"></i>Audit Log
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text me-3 small text-secondary">
+                    <i class="fas fa-user-circle me-1"></i>{{ session.get('username', '') }}
+                </span>
+                <a href="/logout" class="btn btn-outline-danger btn-sm" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Success!</strong> Settings saved successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <h2 class="section-title">
+        <i class="fas fa-sliders-h me-2"></i>System Settings
+    </h2>
+
+    <div class="row">
+        <!-- Email Notifications -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <i class="fas fa-envelope me-2"></i>Email Notifications
+                </div>
+                <div class="card-body">
+                    <p class="info-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Configure email alerts for expiring IPTV subscriptions
+                    </p>
+                    
+                    <form method="POST" action="/settings">
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" name="email_enabled" 
+                                   id="email_enabled" {% if config.email_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="email_enabled">
+                                <strong>Enable Expiration Alerts</strong>
+                                <small class="d-block text-muted">Receive notifications 2 days before expiration</small>
+                            </label>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-server me-1"></i>SMTP Server
+                            </label>
+                            <input type="text" class="form-control" name="smtp_server" 
+                                   value="{{ config.smtp_server }}" placeholder="smtp.gmail.com">
+                            <small class="text-muted">Your email provider's SMTP server</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-plug me-1"></i>SMTP Port
+                            </label>
+                            <input type="number" class="form-control" name="smtp_port" 
+                                   value="{{ config.smtp_port }}" placeholder="587">
+                            <small class="text-muted">Usually 587 (TLS) or 465 (SSL)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" name="email_user" 
+                                   value="{{ config.email_user }}" placeholder="your-email@example.com">
+                            <small class="text-muted">Email address to send from</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-key me-1"></i>Email Password
+                            </label>
+                            <input type="password" class="form-control" name="email_password" 
+                                   value="{{ config.email_password }}" placeholder="••••••••">
+                            <small class="text-muted">App password or account password</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-bell me-1"></i>Send Alerts To
+                            </label>
+                            <input type="email" class="form-control" name="notification_email" 
+                                   value="{{ config.notification_email }}" placeholder="alerts@example.com">
+                            <small class="text-muted">Where to receive notifications</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Save Email Settings
+                        </button>
+                        
+                        <button type="button" class="btn btn-outline-info w-100 mt-2" onclick="testEmail()">
+                            <i class="fas fa-paper-plane me-2"></i>Send Test Email
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <!-- User Management -->
+            <div class="card mb-4" style="border: 1px solid var(--border);">
+                <div class="card-header" style="background: #111; border-bottom: 1px solid var(--border);">
+                    <i class="fas fa-users me-2"></i>User Management
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Manage user accounts and permissions.</p>
+                    <a href="/users" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user-plus me-1"></i>Manage Users
+                    </a>
+                </div>
+            </div>
+
+            <!-- Emergency Controls -->
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Emergency Controls
+                </div>
+                <div class="card-body">
+                    <p class="info-text mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Use this if ADB gets stuck or too many connections are open. This will forcefully terminate all active remote sessions.
+                    </p>
+                    <button class="btn btn-danger w-100" onclick="killAllAdb()">
+                        <i class="fas fa-skull-crossbones me-2"></i>Kill All ADB & Scrcpy Processes
+                    </button>
+                    <small class="d-block text-muted mt-2 text-center">
+                        ⚠️ This will disconnect all active remote viewing sessions
+                    </small>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lock me-2"></i>Change Admin Password
+                </div>
+                <div class="card-body">
+                    <p class="info-text">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Update your admin password for enhanced security
+                    </p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-key me-1"></i>New Password
+                        </label>
+                        <input type="password" class="form-control" id="newPass" 
+                               placeholder="Enter new password" 
+                               oninput="checkPasswordStrength()">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
+                        </div>
+                        <small class="text-muted" id="strengthText">Password strength: None</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-check-double me-1"></i>Confirm Password
+                        </label>
+                        <input type="password" class="form-control" id="confirmPass" 
+                               placeholder="Confirm new password">
+                        <small class="text-danger" id="matchError" style="display: none;">
+                            Passwords do not match
+                        </small>
+                    </div>
+                    
+                    <button class="btn btn-warning w-100" onclick="changePass()">
+                        <i class="fas fa-sync-alt me-2"></i>Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Information -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-code me-2"></i>Version:</strong>
+                            <span class="text-muted">tvscrn v1.0</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-server me-2"></i>Server:</strong>
+                            <span class="text-muted">Flask + SocketIO</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-database me-2"></i>Database:</strong>
+                            <span class="text-muted">SQLite3</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-desktop me-2"></i>Remote Protocol:</strong>
+                            <span class="text-muted">ADB + Scrcpy + VNC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i><span id="successMessage">Success!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i><span id="errorMessage">An error occurred</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    function resetSetup() {
+        if (!confirm('⚠️ Are you sure you want to reset the setup wizard?\n\nThis will DELETE ALL user accounts and you will need to create a new admin account.')) {
+            return;
+        }
+        
+        fetch('/api/reset-setup', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess(data.message || 'Setup reset! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/setup';
+                    }, 1500);
+                } else {
+                    showError(data.error || 'Failed to reset setup');
+                }
+            })
+            .catch(err => {
+                showError('Network error occurred');
+            });
+    }
+</script>
+<script>
+    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+
+    function showSuccess(message) {
+        document.getElementById('successMessage').textContent = message;
+        successToast.show();
+    }
+
+    function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        errorToast.show();
+    }
+
+    function killAllAdb() {
+        if (!confirm('⚠️ Are you sure you want to kill all ADB and Scrcpy processes?\n\nThis will disconnect all active remote viewing sessions.')) {
+            return;
+        }
+        
+        fetch('/api/kill-all-adb', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess(data.message || 'All ADB processes terminated successfully');
+                } else {
+                    showError(data.error || 'Failed to kill processes');
+                }
+            })
+            .catch(err => {
+                showError('Network error occurred');
+            });
+    }
+
+    function checkPasswordStrength() {
+        const password = document.getElementById('newPass').value;
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        
+        // Remove all strength classes
+        strengthBar.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+        
+        if (password.length === 0) {
+            strengthText.textContent = 'Password strength: None';
+            strengthText.className = 'text-muted';
+            return;
+        }
+        
+        let strength = 0;
+        
+        // Length check
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        
+        // Character variety checks
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        
+        // Determine strength level
+        if (strength <= 2) {
+            strengthBar.classList.add('strength-weak');
+            strengthText.textContent = 'Password strength: Weak';
+            strengthText.className = 'text-danger';
+        } else if (strength <= 4) {
+            strengthBar.classList.add('strength-medium');
+            strengthText.textContent = 'Password strength: Medium';
+            strengthText.className = 'text-warning';
+        } else {
+            strengthBar.classList.add('strength-strong');
+            strengthText.textContent = 'Password strength: Strong';
+            strengthText.className = 'text-success';
+        }
+    }
+
+    function changePass() {
+        const newPass = document.getElementById('newPass').value;
+        const confirmPass = document.getElementById('confirmPass').value;
+        const matchError = document.getElementById('matchError');
+        
+        // Validation
+        if (!newPass) {
+            showError('Please enter a new password');
+            return;
+        }
+        
+        if (newPass.length < 8) {
+            showError('Password must be at least 8 characters long');
+            return;
+        }
+        
+        if (newPass !== confirmPass) {
+            matchError.style.display = 'block';
+            showError('Passwords do not match');
+            return;
+        }
+        
+        matchError.style.display = 'none';
+        
+        // Send request
+        fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ new_password: newPass })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('Password changed successfully!');
+                document.getElementById('newPass').value = '';
+                document.getElementById('confirmPass').value = '';
+                
+                // Reset strength indicator
+                document.getElementById('strengthBar').classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+                document.getElementById('strengthText').textContent = 'Password strength: None';
+                document.getElementById('strengthText').className = 'text-muted';
+            } else {
+                showError(data.error || 'Failed to change password');
+            }
+        })
+        .catch(err => {
+            showError('Network error occurred');
+        });
+    }
+
+    // Check password match on input
+    document.getElementById('confirmPass').addEventListener('input', function() {
+        const newPass = document.getElementById('newPass').value;
+        const confirmPass = this.value;
+        const matchError = document.getElementById('matchError');
+        
+        if (confirmPass && newPass !== confirmPass) {
+            matchError.style.display = 'block';
+        } else {
+            matchError.style.display = 'none';
+        }
+    });
+    
+    function testEmail() {
+        const btn = event.target;
+        const originalHtml = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        btn.disabled = true;
+        
+        fetch('/api/test-email', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                
+                if (data.success) {
+                    showSuccess(data.message || 'Test email sent successfully!');
+                } else {
+                    showError(data.error || 'Failed to send test email');
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showError('Network error occurred');
+            });
+    }
+</script>
+</body>
+</html>

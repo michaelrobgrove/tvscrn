@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users — tvscrn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #9b1830;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --surface-hover: #2a2a2a;
+            --border: #333;
+            --text: #e5e5e5;
+            --text-muted: #999;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        body {
+            background-color: #121212;
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            background: var(--surface) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            padding: 0.75rem 0;
+        }
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text) !important;
+        }
+        .navbar-brand i { color: var(--primary); }
+        .table-container {
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .table-dark {
+            background: var(--surface);
+            --bs-table-bg: var(--surface);
+            margin-bottom: 0;
+        }
+        .table-hover tbody tr:hover {
+            background: var(--surface-hover);
+        }
+        thead th {
+            background: #111 !important;
+            border-bottom: 1px solid var(--border) !important;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        .card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .card-header {
+            background: #111 !important;
+            border-bottom: 1px solid var(--border) !important;
+            font-weight: 600;
+        }
+        .form-control, .form-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(196,30,58,0.15);
+        }
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 4px;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .modal-content {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .badge-admin { background: var(--primary); }
+        .badge-operator { background: var(--info); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-tv me-2"></i>TVSCRN
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/settings">
+                        <i class="fas fa-cog me-1"></i>Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/users">
+                        <i class="fas fa-users me-1"></i>Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/audit-log">
+                        <i class="fas fa-clipboard-list me-1"></i>Audit Log
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text me-3 small text-secondary">
+                    <i class="fas fa-user-circle me-1"></i>{{ current_user }}
+                </span>
+                <a href="/logout" class="btn btn-outline-danger btn-sm" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="fas fa-users-cog me-2"></i>User Management</h4>
+        <button class="btn btn-primary btn-sm" onclick="showCreateModal()">
+            <i class="fas fa-user-plus me-1"></i>Add User
+        </button>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr class="text-secondary small text-uppercase">
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id if user.id is defined else user[0] }}</td>
+                        <td class="fw-bold">{{ user.username if user.username is defined else user[1] }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-admin' if (user.role if user.role is defined else user[2]) == 'admin' else 'badge-operator' }}">
+                                {{ user.role if user.role is defined else user[2] }}
+                            </span>
+                        </td>
+                        <td class="text-secondary small">{{ user.created_at if user.created_at is defined else user[3] or '-' }}</td>
+                        <td class="text-secondary small">{{ user.last_login if user.last_login is defined else user[4] or 'Never' }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-info btn-sm me-1" onclick="showEditModal({{ user.id if user.id is defined else user[0] }}, '{{ user.username if user.username is defined else user[1] }}', '{{ user.role if user.role is defined else user[2] }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteUser({{ user.id if user.id is defined else user[0] }}, '{{ user.username if user.username is defined else user[1] }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Add User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" id="createUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="createPassword" required minlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="createRole">
+                            <option value="operator">Operator</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createUser()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" id="editUsername" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password (leave blank to keep current)</label>
+                    <input type="password" class="form-control" id="editPassword" minlength="8">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="editRole">
+                        <option value="operator">Operator</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let createModal, editModal;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        createModal = new bootstrap.Modal(document.getElementById('createModal'));
+        editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    });
+
+    function showCreateModal() {
+        document.getElementById('createForm').reset();
+        createModal.show();
+    }
+
+    function showEditModal(id, username, role) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUsername').value = username;
+        document.getElementById('editRole').value = role;
+        document.getElementById('editPassword').value = '';
+        editModal.show();
+    }
+
+    async function createUser() {
+        const data = {
+            username: document.getElementById('createUsername').value,
+            password: document.getElementById('createPassword').value,
+            role: document.getElementById('createRole').value
+        };
+        try {
+            const r = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const d = await r.json();
+            if (d.success) location.reload();
+            else alert(d.error || 'Failed to create user');
+        } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function updateUser() {
+        const id = document.getElementById('editUserId').value;
+        const data = {
+            username: document.getElementById('editUsername').value,
+            role: document.getElementById('editRole').value
+        };
+        const pw = document.getElementById('editPassword').value;
+        if (pw) data.password = pw;
+        try {
+            const r = await fetch('/api/users/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const d = await r.json();
+            if (d.success) location.reload();
+            else alert(d.error || 'Failed to update user');
+        } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function deleteUser(id, username) {
+        if (!confirm('Delete user "' + username + '"?')) return;
+        try {
+            const r = await fetch('/api/users/' + id, { method: 'DELETE' });
+            const d = await r.json();
+            if (d.success) location.reload();
+            else alert(d.error || 'Failed to delete user');
+        } catch (e) { alert('Error: ' + e.message); }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>tvscrn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #9b1830;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --surface-hover: #2a2a2a;
+            --border: #333;
+            --text: #e5e5e5;
+            --text-muted: #999;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        
+        body { 
+            background-color: #121212; 
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        /* Navbar Styling */
+        .navbar { 
+            background: var(--surface) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            padding: 0.75rem 0;
+        }
+        
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text) !important;
+        }
+        
+        .navbar-brand i {
+            color: var(--primary);
+        }
+        
+        /* Table Styling */
+        .table-container {
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .table-dark { 
+            background: var(--surface);
+            --bs-table-bg: var(--surface);
+            margin-bottom: 0;
+        }
+        
+        .table-hover tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table-hover tbody tr:hover { 
+            background: var(--surface-hover);
+        }
+        
+        thead th {
+            background: #111 !important;
+            border-bottom: 1px solid var(--border) !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        
+        /* Status Icons */
+        .status-online { 
+            color: var(--success);
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+        
+        .status-offline { 
+            color: var(--danger); 
+            opacity: 0.6;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .device-icon { 
+            font-size: 1.5rem; 
+            width: 35px; 
+            text-align: center;
+        }
+        
+        /* Action Buttons */
+        .btn-group-sm > .btn {
+            transition: all 0.15s ease;
+            font-size: 0.8rem;
+        }
+        
+        .btn-group-sm > .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-icon { 
+            padding: 5px 10px;
+            border-width: 1px;
+            border-radius: 4px;
+        }
+        
+        .btn-outline-success:hover { box-shadow: 0 0 10px rgba(46, 204, 113, 0.5); }
+        .btn-outline-info:hover { box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
+        .btn-outline-primary:hover { box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
+        .btn-outline-warning:hover { box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        .btn-outline-danger:hover { box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+        
+        /* Modal Styling */
+        .modal-content { 
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--grey-light);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--grey-light);
+        }
+        
+        /* Form Controls */
+        .form-control, .form-select { 
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+            transition: border-color 0.15s;
+        }
+        
+        .form-control:focus, .form-select:focus { 
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.15);
+        }
+        
+        /* VNC Frame */
+        .vnc-frame { 
+            width: 100%; 
+            height: 650px; 
+            border: none; 
+            background: #000;
+        }
+        
+        /* IP Cell */
+        .ip-cell { 
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .ip-cell:hover { 
+            color: #fff !important;
+            text-decoration: underline;
+            text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        /* Search Bar */
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-wrapper .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            display: none;
+        }
+        
+        .search-wrapper .clear-search:hover {
+            color: #fff;
+        }
+        
+        /* Expiration Date Colors */
+        .exp-date {
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
+        
+        .text-success { 
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success) !important;
+        }
+        
+        .text-warning { 
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning) !important;
+        }
+        
+        .text-danger { 
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger) !important;
+        }
+        
+    
+        
+        /* Toast Styling */
+        .toast {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Loading Spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+        }
+        
+        .stats-card .stat-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .btn-icon {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .device-icon {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-tv me-2"></i>TVSCRN
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/settings">
+                        <i class="fas fa-cog me-1"></i>Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users">
+                        <i class="fas fa-users me-1"></i>Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/audit-log">
+                        <i class="fas fa-clipboard-list me-1"></i>Audit Log
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="#" onclick="openTerminal(); return false;">
+                        <i class="fas fa-terminal me-1"></i>Terminal
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center flex-wrap">
+                <div class="search-wrapper me-3 mb-2 mb-lg-0" style="width: 300px; max-width: 100%;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control" 
+                               placeholder="Search customer, IP, user..." 
+                               onkeyup="filterTable()"
+                               autocomplete="off">
+                        <span class="clear-search" onclick="clearSearch()">
+                            <i class="fas fa-times-circle"></i>
+                        </span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-sm me-3 mb-2 mb-lg-0" onclick="showAddModal()">
+                    <i class="fas fa-plus me-1"></i>Add Device
+                </button>
+                <div class="d-flex align-items-center">
+                    <span class="navbar-text me-3 small text-secondary">
+                        <i class="fas fa-user-circle me-1"></i>{{ session['username'] }}
+                    </span>
+                    <a href="/logout" class="btn btn-outline-danger btn-sm" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <div class="stat-value" id="totalDevices">{{ devices|length }}</div>
+                <div class="stat-label">Total Devices</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <div class="stat-value text-success" id="onlineDevices">
+                    {{ devices|selectattr('9', 'equalto', 'online')|list|length }}
+                </div>
+                <div class="stat-label">Online</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <div class="stat-value text-danger" id="offlineDevices">
+                    {{ devices|selectattr('9', 'equalto', 'offline')|list|length }}
+                </div>
+                <div class="stat-label">Offline</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <div class="stat-value text-warning" id="expiringDevices">0</div>
+                <div class="stat-label">Expiring Soon</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Devices Table -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0" id="deviceTable">
+                <thead>
+                    <tr class="text-secondary small text-uppercase">
+                        <th style="width: 50px;" class="text-center">Status</th>
+                        <th>Customer</th>
+                        <th>Device Name</th>
+                        <th>IP Address</th>
+                        <th>IPTV User</th>
+                        <th>Expires</th>
+                        <th>Phone</th>
+                        <th class="text-end" style="width: 320px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if devices %}
+                        {% for device in devices %}
+                        <tr class="device-row" data-search="{{ device[1]|lower }} {{ device[2]|lower }} {{ device[3]|lower }} {{ device[5]|lower }} {{ device[7]|lower }}">
+                            <td class="text-center">
+                                {% set icon_class = 'fa-android' %}
+                                {% set icon_prefix = 'fab' %}
+                                {% if 'Fire' in device[4] %}
+                                    {% set icon_class = 'fa-amazon' %}
+                                {% elif 'Google' in device[4] %}
+                                    {% set icon_class = 'fa-google' %}
+                                {% elif 'Nvidia' in device[4] or 'Shield' in device[4] %}
+                                    {% set icon_class = 'fa-shield-halved' %}
+                                    {% set icon_prefix = 'fas' %}
+                                {% elif 'Android' in device[4] %}
+                                    {% set icon_class = 'fa-android' %}
+                                {% elif 'Other' in device[4] %}
+                                    {% set icon_class = 'fa-tv' %}
+                                    {% set icon_prefix = 'fas' %}
+                                {% endif %}
+                                <i id="status-icon-{{ device[0] }}" 
+                                   class="{{ icon_prefix }} {{ icon_class }} device-icon {{ 'status-online' if device[9] == 'online' else 'status-offline' }}"
+                                   title="{{ device[4] }} - {{ device[9]|capitalize }}"></i>
+                            </td>
+                            
+                            <td class="fw-bold text-white">{{ device[1] }}</td>
+                            <td class="text-white-50 small">{{ device[2] or '-' }}</td>
+                            
+                            <td class="text-info font-monospace small ip-cell" 
+                                onclick="copyIp('{{ device[3] }}')" 
+                                title="Click to copy IP">
+                                <i class="fas fa-copy me-1"></i>{{ device[3] or '-' }}
+                            </td>
+                            
+                            <td class="text-white-50 small">{{ device[5] or '-' }}</td>
+                            
+                            <td>
+                                <span class="exp-date" data-date="{{ device[6] }}">
+                                    {% if device[6] and '-' in device[6] %}
+                                        {% set parts = device[6].split('-') %}
+                                        {% if parts|length == 3 %}
+                                            {{ parts[1] }}/{{ parts[2] }}/{{ parts[0][2:] }}
+                                        {% else %}
+                                            {{ device[6] }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </span>
+                            </td>
+                            
+                            <td class="text-secondary small">{{ device[7] or '-' }}</td>
+                            
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-success btn-icon" 
+                                            title="View Screen" 
+                                            onclick="connectDevice({{ device[0] }})">
+                                        <i class="fas fa-desktop"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info btn-icon" 
+                                            title="Ping Test" 
+                                            onclick="pingDevice({{ device[0] }})">
+                                        <i class="fas fa-signal"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-icon" 
+                                            title="Edit" 
+                                            onclick='editDevice({{ device[0] }}, {{ device|tojson }})'>
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info btn-icon" 
+                                            title="Device Terminal" 
+                                            onclick="openDeviceTerminal({{ device[0] }}, '{{ device[3] }}')">
+                                        <i class="fas fa-terminal"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-icon" 
+                                            title="Reboot" 
+                                            onclick="rebootDevice({{ device[0] }})">
+                                        <i class="fas fa-power-off"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-icon" 
+                                            title="Delete" 
+                                            onclick="deleteDevice({{ device[0] }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-tv"></i>
+                                    <h5>No Devices Found</h5>
+                                    <p class="text-muted">Click "Add Device" to get started</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- No Results Message -->
+    <div id="noResults" class="empty-state" style="display: none;">
+        <i class="fas fa-search"></i>
+        <h5>No Results Found</h5>
+        <p class="text-muted">Try adjusting your search criteria</p>
+    </div>
+</div>
+
+<!-- Add/Edit Device Modal -->
+<div class="modal fade" id="deviceModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="fas fa-plus-circle me-2"></i>Add Device
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="deviceForm">
+                    <input type="hidden" id="deviceId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">
+                            <i class="fas fa-user me-1"></i>Customer Name *
+                        </label>
+                        <input type="text" class="form-control" name="customer_name" id="customer_name" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-tag me-1"></i>Device Name
+                            </label>
+                            <input type="text" class="form-control" name="device_name" id="device_name" placeholder="e.g. Living Room">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-tv me-1"></i>Type
+                            </label>
+                            <select class="form-select" name="device_type" id="device_type">
+                                <option value="Fire TV">Fire TV</option>
+                                <option value="Android TV">Android TV</option>
+                                <option value="Google TV">Google TV</option>
+                                <option value="Nvidia Shield">Nvidia Shield</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-7 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-network-wired me-1"></i>IP Address *
+                            </label>
+                            <input type="text" class="form-control" name="ip_address" id="ip_address" 
+                                   placeholder="192.168.1.100" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-user-tag me-1"></i>IPTV User
+                            </label>
+                            <input type="text" class="form-control" name="iptv_username" id="iptv_username">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-key me-1"></i>IPTV Password
+                            </label>
+                            <input type="password" class="form-control" name="iptv_password" id="iptv_password">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-calendar-alt me-1"></i>Expiration Date
+                            </label>
+                            <input type="date" class="form-control" name="iptv_expiration" id="iptv_expiration">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small">
+                                <i class="fas fa-phone me-1"></i>Phone
+                            </label>
+                            <input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitDevice()">
+                    <i class="fas fa-save me-1"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VNC Remote View Modal -->
+<div class="modal fade" id="vncModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="vncModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-black text-white border-secondary">
+                <h5 class="modal-title" id="vncModalTitle">
+                    <i class="fas fa-satellite-dish me-2"></i>Remote View
+                </h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeVnc()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 bg-black">
+                <iframe id="vncFrame" class="vnc-frame" allow="fullscreen; clipboard-read; clipboard-write"></iframe>
+            </div>
+            <div class="modal-footer bg-dark border-secondary py-2 flex-wrap align-items-center" style="gap:8px;">
+                <!-- Single row of larger icon-style buttons matching dashboard style -->
+                <div class="btn-group" role="group" aria-label="Device controls">
+                    {% for btn in vnc_toolbar_buttons %}
+                    <button type="button" class="btn btn-outline-light btn-icon"
+                            style="min-width:60px;padding:6px 12px;font-size:14px;"
+                            onclick="vncSendKey({{ btn.keycode }})"
+                            title="{{ btn.title }}">
+                        <span style="font-weight:600;">{{ btn.label }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                <!-- Type-text input -->
+                <div class="input-group" style="max-width:300px;">
+                    <input type="text" id="vncTextInput" class="form-control" placeholder="Type to send to device..." autocomplete="off" disabled>
+                    <button class="btn btn-outline-info" type="button" onclick="vncSendText()" disabled id="vncTextBtn">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+                <button class="btn btn-outline-primary" type="button" onclick="vncTypeUsername()" id="vncUserBtn" style="border-color:#2563eb;color:#60a5fa;" title="Type IPTV Username">
+                    <i class="fas fa-user"></i> User
+                </button>
+                <button class="btn btn-outline-primary" type="button" onclick="vncTypePassword()" id="vncPassBtn" style="border-color:#2563eb;color:#60a5fa;" title="Type IPTV Password">
+                    <i class="fas fa-key"></i> Pass
+                </button>
+                <button type="button" class="btn btn-secondary ms-auto" onclick="closeVnc()" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terminal Modal -->
+<div class="modal fade" id="termModal" tabindex="-1" aria-labelledby="termModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white border-secondary">
+                <h5 class="modal-title" id="termModalTitle">
+                    <i class="fas fa-terminal me-2"></i>System Terminal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeTerm()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 bg-black">
+                <iframe id="termFrame" class="vnc-frame" style="height: 80vh;" allow="fullscreen"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Terminal Modal -->
+<div class="modal fade" id="deviceTermModal" tabindex="-1" aria-labelledby="deviceTermModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white border-secondary">
+                <h5 class="modal-title" id="deviceTermModalTitle">
+                    <i class="fas fa-terminal me-2"></i>Device Terminal - <span id="deviceIp"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeDeviceTerm()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 bg-black">
+                <div id="terminalStatus" class="p-3 text-center" style="display: none;">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Connecting...</span>
+                    </div>
+                    <p class="mt-2 text-info">Connecting to device...</p>
+                </div>
+                <iframe id="deviceTermFrame" class="vnc-frame" style="height: 80vh; display: none;" allow="fullscreen"></iframe>
+            </div>
+            <div class="modal-footer bg-dark border-secondary py-2">
+                <small class="text-secondary me-auto">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Commands: Type "exit" to close shell | Ctrl+C to cancel command
+                </small>
+                <button type="button" class="btn btn-danger btn-sm" onclick="killDeviceShell()">
+                    <i class="fas fa-skull-crossbones me-1"></i>Kill Shell
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeDeviceTerm()" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>IP Copied to Clipboard!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i><span id="errorMessage">An error occurred</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    // Initialize components
+    const socket = io();
+    const deviceModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+    const vncModal = new bootstrap.Modal(document.getElementById('vncModal'));
+    const termModal = new bootstrap.Modal(document.getElementById('termModal'));
+    const deviceTermModal = new bootstrap.Modal(document.getElementById('deviceTermModal'));
+    const copyToast = new bootstrap.Toast(document.getElementById('copyToast'));
+    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+    let currentVncId = null;
+
+    // Allow Enter key in the type-text input
+    document.addEventListener('DOMContentLoaded', () => {
+        const ti = document.getElementById('vncTextInput');
+        if (ti) {
+            ti.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); vncSendText(); }
+            });
+        }
+    });
+    let currentDeviceIp = null;
+
+    // Socket.IO event listeners
+    socket.on('status_update', function(data) { 
+        if (data.device_id) {
+            updateDeviceStatus(data.device_id, data.status);
+        } else {
+            location.reload(); 
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() { 
+        applyDateColors();
+        updateExpiringCount();
+    });
+
+    // Apply color coding to expiration dates
+    function applyDateColors() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        
+        document.querySelectorAll('.exp-date').forEach(el => {
+            const dateStr = el.getAttribute('data-date');
+            if (!dateStr || dateStr === 'None') return;
+            
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return;
+            
+            const expDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            el.classList.remove('text-success', 'text-warning', 'text-danger', 'text-muted');
+            
+            if (diffDays <= 0) {
+                el.classList.add('text-danger');
+                el.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>' + el.innerHTML;
+            } else if (diffDays <= 2) {
+                el.classList.add('text-warning');
+                el.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>' + el.innerHTML;
+            } else {
+                el.classList.add('text-success');
+            }
+        });
+    }
+
+    // Count devices expiring within 2 days
+    function updateExpiringCount() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let count = 0;
+        
+        document.querySelectorAll('.exp-date').forEach(el => {
+            const dateStr = el.getAttribute('data-date');
+            if (!dateStr || dateStr === 'None') return;
+            
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return;
+            
+            const expDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 0 && diffDays <= 2) count++;
+        });
+        
+        document.getElementById('expiringDevices').textContent = count;
+    }
+
+    // Update device status dynamically
+    function updateDeviceStatus(deviceId, status) {
+        const icon = document.getElementById(`status-icon-${deviceId}`);
+        if (icon) {
+            icon.classList.remove('status-online', 'status-offline');
+            icon.classList.add(status === 'online' ? 'status-online' : 'status-offline');
+            icon.title = status;
+        }
+    }
+
+    // Terminal functions
+    function openTerminal() {
+        const host = window.location.hostname;
+        document.getElementById('termFrame').src = `http://${host}:7681`;
+        termModal.show();
+    }
+    
+    function closeTerm() {
+        document.getElementById('termFrame').src = '';
+    }
+
+    // Open device-specific terminal
+    function openDeviceTerminal(deviceId, ip) {
+        currentDeviceIp = ip;
+        document.getElementById('deviceIp').textContent = ip;
+        document.getElementById('terminalStatus').style.display = 'block';
+        document.getElementById('deviceTermFrame').style.display = 'none';
+        
+        deviceTermModal.show();
+        
+        // Connect via ADB first
+        fetch(`/api/devices/${deviceId}/terminal`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    // Wait a moment for ADB to stabilize
+                    setTimeout(() => {
+                        // Open ttyd with adb shell command
+                        const host = window.location.hostname;
+                        const termUrl = `http://${host}:7681/?arg=adb&arg=-s&arg=${ip}:5555&arg=shell`;
+                        document.getElementById('deviceTermFrame').src = termUrl;
+                        document.getElementById('terminalStatus').style.display = 'none';
+                        document.getElementById('deviceTermFrame').style.display = 'block';
+                    }, 1500);
+                } else {
+                    document.getElementById('terminalStatus').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Failed to connect: ${d.error}
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                document.getElementById('terminalStatus').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Connection error: ${err.message}
+                    </div>
+                `;
+            });
+    }
+
+    // Close device terminal
+    function closeDeviceTerm() {
+        document.getElementById('deviceTermFrame').src = '';
+        currentDeviceIp = null;
+    }
+
+    // Kill the ADB shell process
+    function killDeviceShell() {
+        if (!currentDeviceIp) return;
+        
+        if (confirm('Kill the ADB shell process?')) {
+            fetch('/api/kill-all-adb', { method: 'POST' })
+                .then(() => {
+                    closeDeviceTerm();
+                    deviceTermModal.hide();
+                });
+        }
+    }
+
+    // Search and filter
+    function filterTable() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.device-row');
+        let visibleCount = 0;
+        
+        // Show/hide clear button
+        const clearBtn = document.querySelector('.clear-search');
+        clearBtn.style.display = query ? 'block' : 'none';
+        
+        rows.forEach(row => {
+            const text = row.getAttribute('data-search').toLowerCase();
+            const isVisible = text.includes(query);
+            row.style.display = isVisible ? '' : 'none';
+            if (isVisible) visibleCount++;
+        });
+        
+        // Show/hide no results message
+        const noResults = document.getElementById('noResults');
+        const tableContainer = document.querySelector('.table-container');
+        
+        if (query && visibleCount === 0) {
+            tableContainer.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            tableContainer.style.display = 'block';
+            noResults.style.display = 'none';
+        }
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        filterTable();
+    }
+
+    // Copy IP to clipboard
+    function copyIp(ip) {
+        if (!ip || ip === 'None' || ip === '-') return;
+        
+        // Remove any whitespace
+        ip = ip.trim();
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(ip).then(() => { 
+                copyToast.show(); 
+            }).catch(err => {
+                console.error('Clipboard error:', err);
+                // Fallback method
+                fallbackCopyTextToClipboard(ip);
+            });
+        } else {
+            // Fallback for older browsers
+            fallbackCopyTextToClipboard(ip);
+        }
+    }
+    
+    // Fallback copy method for older browsers
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.top = "-999999px";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                copyToast.show();
+            } else {
+                showError('Failed to copy IP');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            showError('Failed to copy IP');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    // Show error toast
+    function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        errorToast.show();
+    }
+
+    // Ping device
+    function pingDevice(id) {
+        const icon = document.getElementById(`status-icon-${id}`);
+        const originalClass = icon.className;
+        
+        icon.className = "fas fa-spinner fa-spin device-icon text-warning";
+        
+        fetch(`/api/devices/${id}/ping`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => { 
+                setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => {
+                icon.className = originalClass;
+                showError('Ping failed');
+            });
+    }
+
+    // Show add device modal
+    function showAddModal() {
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add Device';
+        document.getElementById('deviceForm').reset();
+        document.getElementById('deviceId').value = ''; 
+        deviceModal.show();
+    }
+
+    // Edit device
+    function editDevice(id, data) {
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Device';
+        document.getElementById('deviceId').value = id;
+        document.getElementById('customer_name').value = data[1];
+        document.getElementById('device_name').value = data[2] || '';
+        document.getElementById('ip_address').value = data[3];
+        document.getElementById('device_type').value = data[4];
+        document.getElementById('iptv_username').value = data[5] || '';
+        document.getElementById('iptv_expiration').value = data[6] || '';
+        document.getElementById('phone_number').value = data[7] || '';
+        document.getElementById('iptv_password').value = data[8] || '';
+        deviceModal.show();
+    }
+
+    // Submit device form
+    function submitDevice() {
+        const form = document.getElementById('deviceForm');
+        
+        // Validate form
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const id = document.getElementById('deviceId').value;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/devices/${id}` : '/api/devices';
+        
+        fetch(url, {
+            method: method, 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(d => { 
+            if (d.success) {
+                location.reload();
+            } else {
+                showError(d.error || 'Failed to save device');
+            }
+        })
+        .catch(err => {
+            showError('Network error occurred');
+        });
+    }
+
+    // Connect to device via VNC
+    function connectDevice(id) {
+        currentVncId = id;
+        const btn = event.target.closest('button');
+        const originalHtml = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        
+        fetch(`/api/devices/${id}/connect`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                
+                if (d.success && d.redirect_url) {
+                    document.getElementById('vncFrame').src = d.redirect_url;
+                    vncModal.show();
+                    // Register this device for device-specific disconnect cleanup
+                    if (typeof socket !== 'undefined' && socket.connected) {
+                        socket.emit('register_device', { device_id: id });
+                    }
+                    // Enable text input and load credentials once modal is open
+                    document.getElementById('vncTextInput').disabled = false;
+                    document.getElementById('vncTextBtn').disabled = false;
+                    loadVncCredentials(id);
+                } else {
+                    showError(d.error || 'Connection failed');
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showError('Failed to connect to device');
+            });
+    }
+
+    // Close VNC connection
+    function closeVnc() {
+        document.getElementById('vncFrame').src = '';
+        // Disable text input when not connected
+        document.getElementById('vncTextInput').disabled = true;
+        document.getElementById('vncTextBtn').disabled = true;
+        if (currentVncId) {
+            fetch(`/api/devices/${currentVncId}/disconnect`, { method: 'POST' })
+                .catch(err => console.error('Disconnect error:', err));
+        }
+        currentVncId = null;
+    }
+
+    // Send text to the currently connected device via adb shell input text
+    async function vncSendText() {
+        const input = document.getElementById('vncTextInput');
+        const text = input.value;
+        if (!text || !currentVncId) return;
+        try {
+            const r = await fetch(`/api/devices/${currentVncId}/input/text`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            const d = await r.json();
+            if (d.success) {
+                input.value = '';
+                input.focus();
+            } else {
+                console.error('Text failed:', d.error);
+            }
+        } catch (e) {
+            console.error('Text error:', e);
+        }
+    }
+
+    // Fetch credentials for VNC modal
+    let vncCredentials = { username: '', password: '' };
+
+    async function loadVncCredentials(deviceId) {
+        try {
+            const r = await fetch(`/api/devices/${deviceId}/credentials`, { credentials: 'same-origin' });
+            const d = await r.json();
+            if (d.success) vncCredentials = { username: d.username, password: d.password };
+        } catch (e) {}
+    }
+
+    async function vncTypeCredential(text) {
+        if (!currentVncId || !text) return;
+        try {
+            const r = await fetch(`/api/devices/${currentVncId}/input/text`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (r.ok) { console.log('Typed:', text.substring(0, 3) + '...'); }
+        } catch (e) { console.error('Type error:', e); }
+    }
+
+    function vncTypeUsername() {
+        if (vncCredentials.username) { vncTypeCredential(vncCredentials.username); }
+        else { showError('No username set for this device'); }
+    }
+
+    function vncTypePassword() {
+        if (vncCredentials.password) { vncTypeCredential(vncCredentials.password); }
+        else { showError('No password set for this device'); }
+    }
+
+    // Send an Android keyevent via ADB to the currently connected device
+    async function vncSendKey(keycode) {
+        if (!currentVncId) {
+            console.warn('No device connected');
+            return;
+        }
+        try {
+            const r = await fetch(`/api/devices/${currentVncId}/input/key`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keycode })
+            });
+            const d = await r.json();
+            if (!d.success) console.error('Key failed:', d.error);
+        } catch (e) {
+            console.error('Key error:', e);
+        }
+    }
+
+    // Reboot device
+    function rebootDevice(id) {
+        if (!confirm('Are you sure you want to reboot this device?')) return;
+        
+        fetch(`/api/devices/${id}/reboot`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    alert('Device is rebooting...');
+                } else {
+                    showError(d.message || 'Reboot failed');
+                }
+            })
+            .catch(err => {
+                showError('Failed to reboot device');
+            });
+    }
+    
+    // Delete device
+    function deleteDevice(id) {
+        if (!confirm('Are you sure you want to delete this device? This action cannot be undone.')) return;
+        
+        fetch(`/api/devices/${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    location.reload();
+                } else {
+                    showError('Failed to delete device');
+                }
+            })
+            .catch(err => {
+                showError('Network error occurred');
+            });
+    }
+
+    // Handle keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K for search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('searchInput').focus();
+        }
+        
+        // Escape to clear search
+        if (e.key === 'Escape' && document.getElementById('searchInput').value) {
+            clearSearch();
+        }
+    });
+</script>
+    <div style="text-align:center; padding:12px; color:#555; font-size:11px; border-top:1px solid #222; margin-top:16px;">
+        tvscrn &mdash; Open Source TV Box Management &middot; <a href="https://github.com/tvscrn/tvscrn" style="color:#666;">GitHub</a>
+    </div>
+</body>
+</html>

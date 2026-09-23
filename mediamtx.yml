@@ -1,0 +1,16 @@
+logLevel: warn
+webrtc: yes
+webrtcAddress: 0.0.0.0:8889
+webrtcAdditionalHosts: [127.0.0.1]
+rtsp: yes
+rtspAddress: 0.0.0.0:8555
+rtspTransports: [tcp]
+readTimeout: 10s
+writeTimeout: 10s
+hls: yes
+hlsAddress: 0.0.0.0:8888
+api: yes
+apiAddress: 127.0.0.1:9997
+
+paths:
+  all:

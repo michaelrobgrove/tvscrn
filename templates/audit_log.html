@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Log — tvscrn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #9b1830;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --surface-hover: #2a2a2a;
+            --border: #333;
+            --text: #e5e5e5;
+            --text-muted: #999;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        body {
+            background-color: #121212;
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            background: var(--surface) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            padding: 0.75rem 0;
+        }
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text) !important;
+        }
+        .navbar-brand i { color: var(--primary); }
+        .table-container {
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .table-dark {
+            background: var(--surface);
+            --bs-table-bg: var(--surface);
+            margin-bottom: 0;
+        }
+        .table-hover tbody tr:hover {
+            background: var(--surface-hover);
+        }
+        thead th {
+            background: #111 !important;
+            border-bottom: 1px solid var(--border) !important;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        .stats-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .stats-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+        }
+        .stats-card .stat-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+        .form-control, .form-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(196,30,58,0.15);
+        }
+        .badge-action {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-tv me-2"></i>TVSCRN
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/settings">
+                        <i class="fas fa-cog me-1"></i>Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users">
+                        <i class="fas fa-users me-1"></i>Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/audit-log">
+                        <i class="fas fa-clipboard-list me-1"></i>Audit Log
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text me-3 small text-secondary">
+                    <i class="fas fa-user-circle me-1"></i>{{ current_user }}
+                </span>
+                <a href="/logout" class="btn btn-outline-danger btn-sm" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>Audit Log</h4>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-2">
+            <input type="text" class="form-control" id="filterUser" placeholder="Filter by user..." onkeyup="loadAuditLog()">
+        </div>
+        <div class="col-md-3 mb-2">
+            <select class="form-select" id="filterAction" onchange="loadAuditLog()">
+                <option value="">All Actions</option>
+                <option value="login">Login</option>
+                <option value="logout">Logout</option>
+                <option value="connect">Connect</option>
+                <option value="disconnect">Disconnect</option>
+                <option value="input">Input</option>
+                <option value="reboot">Reboot</option>
+                <option value="password_change">Password Change</option>
+                <option value="user_create">User Create</option>
+                <option value="user_delete">User Delete</option>
+            </select>
+        </div>
+        <div class="col-md-2 mb-2">
+            <select class="form-select" id="filterLimit" onchange="loadAuditLog()">
+                <option value="100">Last 100</option>
+                <option value="500">Last 500</option>
+                <option value="1000">Last 1000</option>
+                <option value="0">All</option>
+            </select>
+        </div>
+        <div class="col-md-2 mb-2">
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="loadAuditLog()">
+                <i class="fas fa-sync me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr class="text-secondary small text-uppercase">
+                        <th style="width:160px;">Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Device</th>
+                        <th>Details</th>
+                        <th style="width:120px;">IP</th>
+                    </tr>
+                </thead>
+                <tbody id="logTable">
+                    <tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', loadAuditLog);
+
+function actionBadge(action) {
+    const colors = {
+        'login': 'success', 'logout': 'secondary',
+        'connect': 'info', 'disconnect': 'warning',
+        'input': 'primary', 'reboot': 'danger',
+        'password_change': 'warning', 'user_create': 'success', 'user_delete': 'danger'
+    };
+    return '<span class="badge bg-' + (colors[action] || 'secondary') + ' badge-action">' + action + '</span>';
+}
+
+async function loadAuditLog() {
+    const user = document.getElementById('filterUser').value;
+    const action = document.getElementById('filterAction').value;
+    const limit = document.getElementById('filterLimit').value;
+    const params = new URLSearchParams();
+    if (user) params.set('user', user);
+    if (action) params.set('action', action);
+    if (limit) params.set('limit', limit);
+    try {
+        const r = await fetch('/api/audit-log?' + params.toString());
+        const data = await r.json();
+        const tbody = document.getElementById('logTable');
+        if (!data.entries || data.entries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No entries found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.entries.map(e =>
+            '<tr>' +
+            '<td class="text-secondary small" style="font-family:monospace;">' + (e.timestamp || '-') + '</td>' +
+            '<td class="fw-bold">' + (e.username || '-') + '</td>' +
+            '<td>' + actionBadge(e.action) + '</td>' +
+            '<td>' + (e.device_id || '-') + '</td>' +
+            '<td class="text-secondary small" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;">' + (e.details || '-') + '</td>' +
+            '<td class="text-secondary small" style="font-family:monospace;">' + (e.ip_address || '-') + '</td>' +
+            '</tr>'
+        ).join('');
+    } catch (e) {
+        document.getElementById('logTable').innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error loading logs</td></tr>';
+    }
+}
+</script>
+</body>
+</html>
